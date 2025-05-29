@@ -1,115 +1,150 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client";
+import { useState, useEffect } from "react";
+import React from "react";
+import WeatherCard from "./components/WeatherCard";
+import { Search } from "./components/Decoration";
+import Circle from "./components/Circle";
+import { YellowCircle, BlueCircle, Icons } from "./components/Decoration";
+import { CiLocationOn } from "react-icons/ci";
+import Logo from "./components/Logo";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const API_KEY = "5bf8f7f6f1ac4ed1ae772612241312";
 
 export default function Home() {
+  const [search, setSearch] = useState("");
+  const [city, setCity] = useState("Ulaanbaatar");
+  const [dayWeather, setDayWeather] = useState({});
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const cities = [
+    "Ulaanbaatar",
+    "Darkhan",
+    "Erdenet",
+    "Tokyo",
+    "New York",
+    "London",
+    "Seoul",
+    "Berlin",
+    "Paris",
+    "Beijing",
+    "Moscow",
+    "Los Angeles",
+    "San Francisco",
+    "Sydney",
+    "Dubai",
+    "Bangkok",
+    "Singapore",
+    "Hong Kong",
+    "Kuala Lumpur",
+    "Istanbul",
+    "Madrid",
+    "Rome",
+    "Barcelona",
+    "Amsterdam",
+    "Toronto",
+    "Vancouver",
+    "Montreal",
+    "Chicago",
+    "Houston",
+    "Miami",
+  ];
+
+  const onChangeText = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+
+    if (value.length > 0) {
+      const filtered = cities.filter((city) =>
+        city.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const onSelectSuggestion = (selectedCity) => {
+    setCity(selectedCity);
+    setSearch(selectedCity);
+    setShowSuggestions(false);
+  };
+
+  const onPressEnter = (e) => {
+    if (e.code === "Enter") {
+      setCity(search);
+    }
+  };
+
+  useEffect(() => {
+    fetch(
+      `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${city}&days=1&aqi=no&alerts=no`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setDayWeather({
+          temperature: data.forecast.forecastday[0].day.maxtemp_c,
+          nightTemp: data.forecast.forecastday[0].day.mintemp_c,
+          condition: data.forecast.forecastday[0].day.condition.text,
+          date: data.forecast.forecastday[0].date,
+        });
+      });
+  }, [city]);
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <main>
+      <div className="flex h-screen w-full bg-white justify-center relative ">
+        <div className="w-[1200px] h-full flex relative font-semibold">
+          <div className="w-1/2 h-full bg-[#F3F4F6] relative backdrop-">
+            <YellowCircle />
+            <Search
+              visible={true}
+              search={search}
+              onChangeText={onChangeText}
+              onPressEnter={onPressEnter}
+              suggestions={suggestions}
+              showSuggestions={showSuggestions}
+              onSelectSuggestion={onSelectSuggestion}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <WeatherCard
+              bgcolor="white"
+              backdropColor="blur-xl"
+              date={dayWeather.date}
+              cityName={city}
+              temperature={`${dayWeather.temperature}°`}
+              stat={dayWeather.condition}
+              weatherType="day"
+              textColor="black"
+              temperatureColor="black"
+            />
+            <Icons iconColor="#D1D5DB" />
+            <CiLocationOn className="absolute text-xl text-black z-40 ml-[405px] my-[200px]" />
+          </div>
+
+          <div className="w-1/2 h-full bg-[#0F141E] relative">
+            <BlueCircle className="mb-10" />
+            <Search visible={false} />
+            <WeatherCard
+              bgcolor="black"
+              date={dayWeather.date}
+              cityName={city}
+              temperature={`${dayWeather.nightTemp}°`}
+              stat={dayWeather.condition}
+              weatherType="night"
+              textColor="white"
+              statColor="green"
+            />
+            <Icons iconColor="white" />
+            <CiLocationOn className="absolute text-xl text-white z-40 ml-[405px] my-[200px]" />
+          </div>
+
+          <Circle size={140} />
+          <Circle size={340} />
+          <Circle size={540} />
+          <Circle size={940} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <Logo />
+      </div>
+    </main>
   );
 }

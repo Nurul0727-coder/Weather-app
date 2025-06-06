@@ -1,18 +1,18 @@
 "use client";
 import { AiOutlineSearch } from "react-icons/ai";
-import { CiHome, CiLocationOn, CiHeart } from "react-icons/ci";
+import { CiHome, CiHeart } from "react-icons/ci";
 import { IoPersonOutline } from "react-icons/io5";
 import React from "react";
 import { IoLocationOutline } from "react-icons/io5";
 
-export function Search({
+export default function Search({
   visible = true,
   search,
   onChangeText,
   onPressEnter,
   suggestions = [],
   showSuggestions = false,
-  onSelectSuggestion, // нэмэлт функц
+  onSelectSuggestion,
 }) {
   return (
     <div

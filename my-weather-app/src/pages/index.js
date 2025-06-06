@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import React from "react";
 import WeatherCard from "./components/WeatherCard";
-import { Search } from "./components/Decoration";
+import Search from "./components/Decoration";
 import Circle from "./components/Circle";
 import { YellowCircle, BlueCircle, Icons } from "./components/Decoration";
 import { CiLocationOn } from "react-icons/ci";
